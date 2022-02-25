@@ -1,0 +1,31 @@
+type User {
+  id: ID!
+  name: String!
+}
+
+type Link {
+  id: ID!
+  title: String!
+  address: String!
+  user: User!
+}
+
+input UserIn {
+  username: String!
+  password: String!
+}
+
+input LinkIn {
+  title: String!
+  address: String!
+}
+
+
+type Query {
+	links: [Link!]
+}
+
+type Mutation {
+	createUser(input: UserIn!): User!
+  createLink(input: LinkIn!): Link!
+}
