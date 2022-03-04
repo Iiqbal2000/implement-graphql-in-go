@@ -9,11 +9,9 @@ import (
 	// graphql-platform
 	graphqlP "github.com/Iiqbal2000/mygopher/internal/platform/graphql"
 	// http-platform
-	httpP "github.com/Iiqbal2000/mygopher/internal/platform/httphandler"
 	authP "github.com/Iiqbal2000/mygopher/internal/platform/auth"
 	"github.com/Iiqbal2000/mygopher/internal/storage"
 	"github.com/Iiqbal2000/mygopher/internal/users"
-	"github.com/graph-gophers/graphql-go"
 )
 
 const defaultPort = "8080"
@@ -36,8 +34,8 @@ func main() {
 	}
 
 	linkSvc := links.LinkService{
-		Db:  db,
-		Log: log,
+		Db:      db,
+		Log:     log,
 		UserSvc: userSvc,
 	}
 
@@ -45,25 +43,10 @@ func main() {
 		UserSvc: userSvc,
 	}
 
-	resolver := &graphqlP.Resolver{
-		UserSvc: userSvc,
-		LinkSvc: linkSvc,
-	}
+	graphqlServer := graphqlP.NewGraphQl(userSvc, linkSvc)
 
-	opts := []graphql.SchemaOpt{graphql.UseFieldResolvers()}
-
-	// read schema
-	s := graphqlP.Read()
-
-	schema := graphql.MustParseSchema(s, resolver, opts...)
-
-	graphqlHandler := &httpP.GraphqlHandler{
-		Schema: schema,
-		Loaders: graphqlP.InitLoaders(userSvc),
-	}
-
-	http.Handle("/login", httpP.Login(auth))
-	http.Handle("/query", httpP.AuthorizeMiddleware(graphqlHandler, auth))
+	http.Handle("/login", authP.Login(auth))
+	http.Handle("/query", authP.AuthorizeMiddleware(graphqlServer, auth))
 
 	log.Print("Server is lintening at localhost:", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
