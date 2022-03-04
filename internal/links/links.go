@@ -20,8 +20,8 @@ var (
 )
 
 type LinkService struct {
-	Db  *sql.DB
-	Log *log.Logger
+	Db      *sql.DB
+	Log     *log.Logger
 	UserSvc users.UserService
 }
 
@@ -29,7 +29,7 @@ func (l LinkService) CreateLink(ctx context.Context, linkIn mygopher.LinkIn) (my
 	isAuthorized := ctx.Value("is_authorized").(bool)
 	if !isAuthorized {
 		return mygopher.LinkOut{}, mygopher.Error{
-			Code: "401",
+			Code:    "401",
 			Message: "Unauthorized",
 		}
 	}
@@ -37,7 +37,7 @@ func (l LinkService) CreateLink(ctx context.Context, linkIn mygopher.LinkIn) (my
 	userId := ctx.Value("user_id").(string)
 	linkIn.UserID = userId
 
-	switch  {
+	switch {
 	case linkIn.Title == "":
 		return mygopher.LinkOut{}, mygopher.Error{
 			Code:    "400",
@@ -98,7 +98,7 @@ func (l LinkService) GetAll(ctx context.Context) ([]mygopher.LinkOut, error) {
 	isAuthorized := ctx.Value("is_authorized").(bool)
 	if !isAuthorized {
 		return nil, mygopher.Error{
-			Code: "401",
+			Code:    "401",
 			Message: "Unauthorized",
 		}
 	}
@@ -111,7 +111,7 @@ func (l LinkService) GetAll(ctx context.Context) ([]mygopher.LinkOut, error) {
 	if err != nil {
 		l.Log.Println("failure when get links: ", err.Error())
 		return nil, mygopher.Error{
-			Code: "500",
+			Code:    "500",
 			Message: errLinkInternalServer.Error(),
 		}
 	}
@@ -129,7 +129,7 @@ func (l LinkService) GetAll(ctx context.Context) ([]mygopher.LinkOut, error) {
 		if err != nil {
 			l.Log.Println("failure when in iteration links: ", err.Error())
 			return nil, mygopher.Error{
-				Code: "500",
+				Code:    "500",
 				Message: errLinkInternalServer.Error(),
 			}
 		}
