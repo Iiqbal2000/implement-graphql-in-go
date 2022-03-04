@@ -6,11 +6,9 @@ import (
 	"log"
 	"net/http"
 	"strings"
-
-	authP "github.com/Iiqbal2000/mygopher/internal/platform/auth"
 )
 
-func Login(auth authP.Auth) http.HandlerFunc {
+func Login(auth Auth) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(rw, "the method was not allowed", http.StatusBadRequest)
@@ -44,7 +42,7 @@ func Login(auth authP.Auth) http.HandlerFunc {
 	}
 }
 
-func AuthorizeMiddleware(next http.Handler, auth authP.Auth) http.HandlerFunc {
+func AuthorizeMiddleware(next http.Handler, auth Auth) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		authorizationHeader := r.Header.Get("Authorization")
 
