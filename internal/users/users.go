@@ -28,12 +28,12 @@ type Output struct {
 	Username string `json:"username"`
 }
 
-type UserService struct {
+type Service struct {
 	Db  *sql.DB
 	Log *log.Logger
 }
 
-func (u UserService) Add(input Input) (Output, error) {
+func (u Service) Add(input Input) (Output, error) {
 	if input.Username == "" {
 		return Output{}, mygopher.Error{
 			Code:    "400",
@@ -82,7 +82,7 @@ func (u UserService) Add(input Input) (Output, error) {
 	}, nil
 }
 
-func (u UserService) GetByIds(ids []string) ([]Output, error) {
+func (u Service) GetByIds(ids []string) ([]Output, error) {
 	sb := sqlbuilder.NewSelectBuilder()
 
 	// []int{1,2} => "?,?"
@@ -128,7 +128,7 @@ func (u UserService) GetByIds(ids []string) ([]Output, error) {
 	return users, nil
 }
 
-func (u UserService) GetById(id string) (Output, error) {
+func (u Service) GetById(id string) (Output, error) {
 	user := Output{}
 	var userId int64
 
@@ -152,7 +152,7 @@ func (u UserService) GetById(id string) (Output, error) {
 	return user, nil
 }
 
-func (u UserService) GetByUsername(username string) (mygopher.User, error) {
+func (u Service) GetByUsername(username string) (mygopher.User, error) {
 	user := mygopher.User{}
 	var userId int64
 
@@ -183,7 +183,7 @@ func (u UserService) GetByUsername(username string) (mygopher.User, error) {
 	return user, nil
 }
 
-func (u UserService) Compare(usernameIn, passwordIn string) (string, error) {
+func (u Service) Compare(usernameIn, passwordIn string) (string, error) {
 	// check whether the username exists
 	user, err := u.GetByUsername(usernameIn)
 	if err != nil {
