@@ -6,12 +6,10 @@ import (
 	"os"
 
 	"github.com/Iiqbal2000/mygopher/internal/links"
-	// graphql-platform
-	graphqlP "github.com/Iiqbal2000/mygopher/internal/platform/graphql"
-	// http-platform
-	authP "github.com/Iiqbal2000/mygopher/internal/platform/auth"
-	"github.com/Iiqbal2000/mygopher/internal/storage"
 	"github.com/Iiqbal2000/mygopher/internal/users"
+	graphql "github.com/Iiqbal2000/mygopher/internal/platform/graphql"
+	auth "github.com/Iiqbal2000/mygopher/internal/platform/auth"
+	sqlite3 "github.com/Iiqbal2000/mygopher/internal/platform/sqlite3"
 )
 
 const defaultPort = "8080"
@@ -24,29 +22,29 @@ func main() {
 
 	log := log.New(os.Stdout, "GOPHER: ", log.Lshortfile)
 
-	db := storage.Run()
+	db := sqlite3.Run()
 
-	storage.Migrate(db)
+	sqlite3.Migrate(db)
 
-	userSvc := users.UserService{
+	userSvc := users.Service{
 		Db:  db,
 		Log: log,
 	}
 
-	linkSvc := links.LinkService{
+	linkSvc := links.Service{
 		Db:      db,
 		Log:     log,
 		UserSvc: userSvc,
 	}
 
-	authSvc := authP.Auth{
+	authSvc := auth.Service{
 		UserSvc: userSvc,
 	}
 
-	graphqlServer := graphqlP.NewGraphQl(userSvc, linkSvc)
+	graphqlServer := graphql.CreateServer(userSvc, linkSvc)
 	
-	http.Handle("/login", authP.Login(authSvc))
-	http.Handle("/query", authP.Authorize(graphqlServer, authSvc))
+	http.Handle("/login", auth.Login(authSvc))
+	http.Handle("/query", auth.Authorize(graphqlServer, authSvc))
 
 	log.Print("Server is lintening at localhost:", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
