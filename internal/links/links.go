@@ -33,13 +33,13 @@ type Output struct {
 }
 
 
-type LinkService struct {
+type Service struct {
 	Db      *sql.DB
 	Log     *log.Logger
-	UserSvc users.UserService
+	UserSvc users.Service
 }
 
-func (l LinkService) CreateLink(ctx context.Context, input Input) (Output, error) {
+func (l Service) CreateLink(ctx context.Context, input Input) (Output, error) {
 	isAuthorized := ctx.Value("is_authorized").(bool)
 	if !isAuthorized {
 		return Output{}, mygopher.Error{
@@ -108,7 +108,7 @@ func (l LinkService) CreateLink(ctx context.Context, input Input) (Output, error
 	}, nil
 }
 
-func (l LinkService) GetAll(ctx context.Context) ([]Output, error) {
+func (l Service) GetAll(ctx context.Context) ([]Output, error) {
 	isAuthorized := ctx.Value("is_authorized").(bool)
 	if !isAuthorized {
 		return nil, mygopher.Error{
