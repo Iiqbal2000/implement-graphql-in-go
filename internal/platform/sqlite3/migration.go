@@ -1,4 +1,4 @@
-package storage
+package platform
 
 import (
 	"database/sql"
@@ -13,9 +13,9 @@ var userTable = `CREATE TABLE IF NOT EXISTS Users(
 
 var linkTable = `CREATE TABLE IF NOT EXISTS Links(
 	ID INT PRIMARY KEY UNIQUE,
-	Title VARCHAR (255) ,
-	Address VARCHAR (255) ,
-	UserID INT ,
+	Title VARCHAR (255),
+	Address VARCHAR (255),
+	UserID INT,
 	FOREIGN KEY (UserID) REFERENCES Users(ID)
 )`
 
