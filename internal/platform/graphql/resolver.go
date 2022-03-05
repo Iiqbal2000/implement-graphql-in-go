@@ -3,7 +3,6 @@ package platform
 import (
 	"context"
 
-	"github.com/Iiqbal2000/mygopher"
 	"github.com/Iiqbal2000/mygopher/internal/links"
 	"github.com/Iiqbal2000/mygopher/internal/users"
 )
@@ -38,7 +37,7 @@ func (r *Resolver) Links(ctx context.Context) (*[]*LinkResolver, error) {
 	return &linkResolver, nil
 }
 
-func (r *Resolver) CreateLink(ctx context.Context, args struct{ Input mygopher.LinkIn }) (*LinkResolver, error) {
+func (r *Resolver) CreateLink(ctx context.Context, args struct{ Input links.Input }) (*LinkResolver, error) {
 	linkOut, err := r.LinkSvc.CreateLink(ctx, args.Input)
 	if err != nil {
 		return nil, err
@@ -55,7 +54,7 @@ func (r *Resolver) CreateLink(ctx context.Context, args struct{ Input mygopher.L
 	}, nil
 }
 
-func (r *Resolver) CreateUser(args struct{ Input mygopher.UserIn }) (*UserResolver, error) {
+func (r *Resolver) CreateUser(args struct{ Input users.Input }) (*UserResolver, error) {
 	result, err := r.UserSvc.Add(args.Input)
 	if err != nil {
 		return nil, err

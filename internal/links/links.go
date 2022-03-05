@@ -19,46 +19,60 @@ var (
 	errLinkInternalServer = errors.New("internal server error")
 )
 
+type Input struct {
+	Title   string `json:"title"`
+	Address string `json:"address"`
+	UserID  string `json:"user_id"`
+}
+
+type Output struct {
+	ID      string `json:"id"`
+	Title   string `json:"title"`
+	Address string `json:"address"`
+	UserID  string `json:"user_id"`
+}
+
+
 type LinkService struct {
 	Db      *sql.DB
 	Log     *log.Logger
 	UserSvc users.UserService
 }
 
-func (l LinkService) CreateLink(ctx context.Context, linkIn mygopher.LinkIn) (mygopher.LinkOut, error) {
+func (l LinkService) CreateLink(ctx context.Context, input Input) (Output, error) {
 	isAuthorized := ctx.Value("is_authorized").(bool)
 	if !isAuthorized {
-		return mygopher.LinkOut{}, mygopher.Error{
+		return Output{}, mygopher.Error{
 			Code:    "401",
 			Message: "Unauthorized",
 		}
 	}
 
 	userId := ctx.Value("user_id").(string)
-	linkIn.UserID = userId
+	input.UserID = userId
 
 	switch {
-	case linkIn.Title == "":
-		return mygopher.LinkOut{}, mygopher.Error{
+	case input.Title == "":
+		return Output{}, mygopher.Error{
 			Code:    "400",
 			Message: errBadTitle.Error(),
 		}
-	case linkIn.Address == "":
-		return mygopher.LinkOut{}, mygopher.Error{
+	case input.Address == "":
+		return Output{}, mygopher.Error{
 			Code:    "400",
 			Message: errBadAddress.Error(),
 		}
-	case linkIn.UserID == "":
-		return mygopher.LinkOut{}, mygopher.Error{
+	case input.UserID == "":
+		return Output{}, mygopher.Error{
 			Code:    "400",
 			Message: errBadUserId.Error(),
 		}
 	}
 
 	link := mygopher.Link{
-		Title:   linkIn.Title,
-		Address: linkIn.Address,
-		UserID:  linkIn.UserID,
+		Title:   input.Title,
+		Address: input.Address,
+		UserID:  input.UserID,
 	}
 
 	query, args := sqlbuilder.InsertInto("links").
@@ -69,7 +83,7 @@ func (l LinkService) CreateLink(ctx context.Context, linkIn mygopher.LinkIn) (my
 	result, err := l.Db.Exec(query, args...)
 	if err != nil {
 		l.Log.Println("failure when executing link query")
-		return mygopher.LinkOut{}, mygopher.Error{
+		return Output{}, mygopher.Error{
 			Code:    "500",
 			Message: "internal server error",
 		}
@@ -78,7 +92,7 @@ func (l LinkService) CreateLink(ctx context.Context, linkIn mygopher.LinkIn) (my
 	linkIdRaw, err := result.LastInsertId()
 	if err != nil {
 		l.Log.Println("failure when get link id: ", err.Error())
-		return mygopher.LinkOut{}, mygopher.Error{
+		return Output{}, mygopher.Error{
 			Code:    "500",
 			Message: "internal server error",
 		}
@@ -86,7 +100,7 @@ func (l LinkService) CreateLink(ctx context.Context, linkIn mygopher.LinkIn) (my
 
 	linkId := strconv.FormatInt(linkIdRaw, 10)
 
-	return mygopher.LinkOut{
+	return Output{
 		ID:      linkId,
 		Title:   link.Title,
 		Address: link.Address,
@@ -94,7 +108,7 @@ func (l LinkService) CreateLink(ctx context.Context, linkIn mygopher.LinkIn) (my
 	}, nil
 }
 
-func (l LinkService) GetAll(ctx context.Context) ([]mygopher.LinkOut, error) {
+func (l LinkService) GetAll(ctx context.Context) ([]Output, error) {
 	isAuthorized := ctx.Value("is_authorized").(bool)
 	if !isAuthorized {
 		return nil, mygopher.Error{
@@ -118,10 +132,10 @@ func (l LinkService) GetAll(ctx context.Context) ([]mygopher.LinkOut, error) {
 
 	defer rows.Close()
 
-	linksOut := make([]mygopher.LinkOut, 0)
+	linksOut := make([]Output, 0)
 
 	for rows.Next() {
-		link := mygopher.LinkOut{}
+		link := Output{}
 		var linkId int64
 		var userId int64
 
