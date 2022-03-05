@@ -8,7 +8,7 @@ import (
 )
 
 type userLoader struct {
-	userSvc users.UserService
+	userSvc users.Service
 }
 
 func (u userLoader) batchFunc(_ context.Context, keys dataloader.Keys) []*dataloader.Result {
