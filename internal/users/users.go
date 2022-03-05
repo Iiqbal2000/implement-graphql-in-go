@@ -18,19 +18,29 @@ var (
 	errWrongPass    = errors.New("the password does not match")
 )
 
+type Input struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type Output struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+}
+
 type UserService struct {
 	Db  *sql.DB
 	Log *log.Logger
 }
 
-func (u UserService) Add(input mygopher.UserIn) (mygopher.UserOut, error) {
+func (u UserService) Add(input Input) (Output, error) {
 	if input.Username == "" {
-		return mygopher.UserOut{}, mygopher.Error{
+		return Output{}, mygopher.Error{
 			Code:    "400",
 			Message: errBadUsername.Error(),
 		}
 	} else if input.Password == "" {
-		return mygopher.UserOut{}, mygopher.Error{
+		return Output{}, mygopher.Error{
 			Code:    "400",
 			Message: errBadPassword.Error(),
 		}
@@ -49,7 +59,7 @@ func (u UserService) Add(input mygopher.UserIn) (mygopher.UserOut, error) {
 	result, err := u.Db.Exec(query, args...)
 	if err != nil {
 		u.Log.Println("failure when inserting new user")
-		return mygopher.UserOut{}, mygopher.Error{
+		return Output{}, mygopher.Error{
 			Code:    "500",
 			Message: "internal server error",
 		}
@@ -58,7 +68,7 @@ func (u UserService) Add(input mygopher.UserIn) (mygopher.UserOut, error) {
 	userIdRaw, err := result.LastInsertId()
 	if err != nil {
 		u.Log.Println("failure when getting user id")
-		return mygopher.UserOut{}, mygopher.Error{
+		return Output{}, mygopher.Error{
 			Code:    "500",
 			Message: "internal server error",
 		}
@@ -66,13 +76,13 @@ func (u UserService) Add(input mygopher.UserIn) (mygopher.UserOut, error) {
 
 	userId := strconv.FormatInt(userIdRaw, 10)
 
-	return mygopher.UserOut{
+	return Output{
 		ID:       userId,
 		Username: user.Username,
 	}, nil
 }
 
-func (u UserService) GetByIds(ids []string) ([]mygopher.UserOut, error) {
+func (u UserService) GetByIds(ids []string) ([]Output, error) {
 	sb := sqlbuilder.NewSelectBuilder()
 
 	// []int{1,2} => "?,?"
@@ -96,10 +106,10 @@ func (u UserService) GetByIds(ids []string) ([]mygopher.UserOut, error) {
 
 	defer rows.Close()
 
-	users := make([]mygopher.UserOut, len(ids))
+	users := make([]Output, len(ids))
 
 	for rows.Next() {
-		user := mygopher.UserOut{}
+		user := Output{}
 		var userId int64
 
 		err := rows.Scan(&userId, &user.Username)
@@ -118,8 +128,8 @@ func (u UserService) GetByIds(ids []string) ([]mygopher.UserOut, error) {
 	return users, nil
 }
 
-func (u UserService) GetById(id string) (mygopher.UserOut, error) {
-	user := mygopher.UserOut{}
+func (u UserService) GetById(id string) (Output, error) {
+	user := Output{}
 	var userId int64
 
 	sb := sqlbuilder.NewSelectBuilder()
@@ -131,7 +141,7 @@ func (u UserService) GetById(id string) (mygopher.UserOut, error) {
 	err := u.Db.QueryRow(query, args...).Scan(&userId, &user.Username)
 	if err != nil {
 		u.Log.Println("failure when getting a user: ", err.Error())
-		return mygopher.UserOut{}, mygopher.Error{
+		return Output{}, mygopher.Error{
 			Code:    "500",
 			Message: "internal server error",
 		}
