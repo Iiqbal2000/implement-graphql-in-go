@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func Login(auth Auth) http.HandlerFunc {
+func Login(s Service) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(rw, "the method was not allowed", http.StatusBadRequest)
@@ -19,7 +19,7 @@ func Login(auth Auth) http.HandlerFunc {
 		if ok {
 			rw.Header().Set("Content-Type", "application/json")
 
-			token, err := auth.authenticate(username, password)
+			token, err := s.authenticate(username, password)
 			if err != nil {
 				http.Error(rw, err.Error(), http.StatusUnauthorized)
 				return
@@ -42,7 +42,7 @@ func Login(auth Auth) http.HandlerFunc {
 	}
 }
 
-func Authorize(next http.Handler, auth Auth) http.HandlerFunc {
+func Authorize(next http.Handler, auth Service) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		authorizationHeader := r.Header.Get("Authorization")
 

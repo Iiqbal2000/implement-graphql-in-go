@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	ErrInvalidToken = errors.New("token is invalid")
-	ErrExpiredToken = errors.New("token has expired")
-	ErrInternal = errors.New("internal server error")
+	errInvalidToken = errors.New("token is invalid")
+	errExpiredToken = errors.New("token has expired")
+	errInternal = errors.New("internal server error")
 )
 
 var secret_key = "ahluPW6HKmzAsL3Rirs7LSQ7orBKHP0f"
@@ -31,7 +31,7 @@ type Payload struct {
 
 func (p Payload) checkExpired() error {
 	if time.Now().After(p.ExpiredAt) {
-		return ErrExpiredToken
+		return errExpiredToken
 	}
 	return nil
 }
@@ -65,12 +65,12 @@ func createToken(userId string, duration time.Duration) (string, error) {
 	paylod, err := newPayload(userId, duration)
 	if err != nil {
 		log.Println(err.Error())
-		return "", ErrInternal
+		return "", errInternal
 	}
 
 	token, err := pasetoV2.Encrypt([]byte(secret_key), paylod, nil)
 	if err != nil {
-		return "", ErrInternal
+		return "", errInternal
 	}
 	return token, nil
 }
@@ -79,7 +79,7 @@ func verifyToken(token string) (*Payload, error) {
 	payload := &Payload{}
 	err := pasetoV2.Decrypt(token, []byte(secret_key), payload, nil)
 	if err != nil {
-		return nil, ErrInvalidToken
+		return nil, errInvalidToken
 	}
 
 	err = payload.checkExpired()
