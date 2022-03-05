@@ -12,13 +12,13 @@ type Auth struct {
 	UserSvc users.UserService
 }
 
-func (a Auth) Authenticate(username, password string) (string, error) {
+func (a Auth) authenticate(username, password string) (string, error) {
 	userId, err := a.UserSvc.Compare(username, password)
 	if err != nil {
 		return "", err
 	}
 
-	token, err := CreateToken(userId, TOKEN_ALIVE)
+	token, err := createToken(userId, TOKEN_ALIVE)
 	if err != nil {
 		return "", err
 	}
@@ -26,8 +26,8 @@ func (a Auth) Authenticate(username, password string) (string, error) {
 	return token, nil
 }
 
-func (a Auth) Authorize(tokenIn string) (string, error) {
-	payload, err := VerifyToken(tokenIn)
+func (a Auth) authorize(tokenIn string) (string, error) {
+	payload, err := verifyToken(tokenIn)
 	if err != nil {
 		return "", err
 	}

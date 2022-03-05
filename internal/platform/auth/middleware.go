@@ -19,7 +19,7 @@ func Login(auth Auth) http.HandlerFunc {
 		if ok {
 			rw.Header().Set("Content-Type", "application/json")
 
-			token, err := auth.Authenticate(username, password)
+			token, err := auth.authenticate(username, password)
 			if err != nil {
 				http.Error(rw, err.Error(), http.StatusUnauthorized)
 				return
@@ -42,7 +42,7 @@ func Login(auth Auth) http.HandlerFunc {
 	}
 }
 
-func AuthorizeMiddleware(next http.Handler, auth Auth) http.HandlerFunc {
+func Authorize(next http.Handler, auth Auth) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		authorizationHeader := r.Header.Get("Authorization")
 
@@ -53,7 +53,7 @@ func AuthorizeMiddleware(next http.Handler, auth Auth) http.HandlerFunc {
 
 		// extract token from header
 		tokenIn := strings.TrimPrefix(authorizationHeader, "Bearer ")
-		userId, err := auth.Authorize(tokenIn)
+		userId, err := auth.authorize(tokenIn)
 
 		// if there is no error it indicates that it is a true user
 		if err == nil {

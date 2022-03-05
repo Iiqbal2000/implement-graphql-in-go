@@ -39,14 +39,14 @@ func main() {
 		UserSvc: userSvc,
 	}
 
-	auth := authP.Auth{
+	authSvc := authP.Auth{
 		UserSvc: userSvc,
 	}
 
 	graphqlServer := graphqlP.NewGraphQl(userSvc, linkSvc)
-
-	http.Handle("/login", authP.Login(auth))
-	http.Handle("/query", authP.AuthorizeMiddleware(graphqlServer, auth))
+	
+	http.Handle("/login", authP.Login(authSvc))
+	http.Handle("/query", authP.Authorize(graphqlServer, authSvc))
 
 	log.Print("Server is lintening at localhost:", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

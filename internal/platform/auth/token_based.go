@@ -29,7 +29,7 @@ type Payload struct {
 	ExpiredAt time.Time `json:"expired_at"`
 }
 
-func (p Payload) CheckExpired() error {
+func (p Payload) checkExpired() error {
 	if time.Now().After(p.ExpiredAt) {
 		return ErrExpiredToken
 	}
@@ -61,7 +61,7 @@ func checkSecretKey(lenSecureKey int) {
 	}
 }
 
-func CreateToken(userId string, duration time.Duration) (string, error) {
+func createToken(userId string, duration time.Duration) (string, error) {
 	paylod, err := newPayload(userId, duration)
 	if err != nil {
 		log.Println(err.Error())
@@ -75,14 +75,14 @@ func CreateToken(userId string, duration time.Duration) (string, error) {
 	return token, nil
 }
 
-func VerifyToken(token string) (*Payload, error) {
+func verifyToken(token string) (*Payload, error) {
 	payload := &Payload{}
 	err := pasetoV2.Decrypt(token, []byte(secret_key), payload, nil)
 	if err != nil {
 		return nil, ErrInvalidToken
 	}
 
-	err = payload.CheckExpired()
+	err = payload.checkExpired()
 	if err != nil {
 		return nil, err
 	}
