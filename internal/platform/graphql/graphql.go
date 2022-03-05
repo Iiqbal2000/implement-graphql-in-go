@@ -18,7 +18,7 @@ type Server struct {
 	Loaders Loaders
 }
 
-func NewGraphQl(uSvc users.UserService, lSvc links.LinkService) Server {
+func CreateServer(uSvc users.Service, lSvc links.Service) Server {
 	resolver := &Resolver{
 		UserSvc: uSvc,
 		LinkSvc: lSvc,

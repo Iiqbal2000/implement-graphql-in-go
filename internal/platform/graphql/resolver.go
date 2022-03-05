@@ -9,8 +9,8 @@ import (
 
 // the root resolver
 type Resolver struct {
-	LinkSvc links.LinkService
-	UserSvc users.UserService
+	LinkSvc links.Service
+	UserSvc users.Service
 }
 
 func (r *Resolver) Links(ctx context.Context) (*[]*LinkResolver, error) {

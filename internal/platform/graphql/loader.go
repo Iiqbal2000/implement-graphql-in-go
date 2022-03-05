@@ -16,7 +16,7 @@ type Loaders struct {
 	Collection map[key]dataloader.BatchFunc
 }
 
-func InitLoaders(userSvc users.UserService) Loaders {
+func InitLoaders(userSvc users.Service) Loaders {
 	userL := userLoader{
 		userSvc: userSvc,
 	}
