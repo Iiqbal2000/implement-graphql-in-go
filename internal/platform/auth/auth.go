@@ -8,12 +8,12 @@ import (
 
 const TOKEN_ALIVE = time.Hour
 
-type Auth struct {
-	UserSvc users.UserService
+type Service struct {
+	UserSvc users.Service
 }
 
-func (a Auth) authenticate(username, password string) (string, error) {
-	userId, err := a.UserSvc.Compare(username, password)
+func (s Service) authenticate(username, password string) (string, error) {
+	userId, err := s.UserSvc.Compare(username, password)
 	if err != nil {
 		return "", err
 	}
@@ -26,7 +26,7 @@ func (a Auth) authenticate(username, password string) (string, error) {
 	return token, nil
 }
 
-func (a Auth) authorize(tokenIn string) (string, error) {
+func (s Service) authorize(tokenIn string) (string, error) {
 	payload, err := verifyToken(tokenIn)
 	if err != nil {
 		return "", err
